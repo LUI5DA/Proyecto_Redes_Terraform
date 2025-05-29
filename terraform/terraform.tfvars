@@ -1,0 +1,6 @@
+resource_group_name = "ad-service"
+location            = "East US"
+vm_name         = "windows-vm1"
+vm_size         = "Standard_B2ms"
+admin_username  = "<username>"
+admin_password  = "<password>"
