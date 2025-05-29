@@ -1,53 +1,44 @@
----
-- name: Crear usuarios en Active Directory
+- name: Instalar y configurar Active Directory en Windows Server
   hosts: windows_vm
-  gather_facts: no
+  gather_facts: false
+  collections:
+    - microsoft.ad
+  vars:
+    dominio_dns: adservice.local
+    safe_mode_password: "ElTigre2025+"
   tasks:
 
-    - name: Crear usuario andrea.orozco
-      microsoft.ad.user:
-        name: andrea.orozco
-        firstname: Andrea
-        lastname: Orozco
-        sam_account_name: andrea.orozco
-        upn: andrea.orozco@adservice.local
-        password: "ContrasenaSegura2024!"
-        enabled: yes
-        password_never_expires: yes
-        path: "CN=Users,DC=adservice,DC=local"
+    - name: Instalar el rol AD-Domain-Services
+      win_feature:
+        name: AD-Domain-Services
+        include_management_tools: yes
+        state: present
+      register: ad_feature
 
-    - name: Crear usuario dylan.alvarado
-      microsoft.ad.user:
-        name: dylan.alvarado
-        firstname: Dylan
-        lastname: Alvarado
-        sam_account_name: dylan.alvarado
-        upn: dylan.alvarado@adservice.local
-        password: "ContrasenaSegura2024!"
-        enabled: yes
-        password_never_expires: yes
-        path: "CN=Users,DC=adservice,DC=local"
+    - name: Reiniciar si es necesario después de instalar AD DS
+      win_reboot:
+      when: ad_feature.reboot_required
 
-    - name: Crear usuario kate.guillen
-      microsoft.ad.user:
-        name: kate.guillen
-        firstname: Kate
-        lastname: Guillen
-        sam_account_name: kate.guillen
-        upn: kate.guillen@adservice.local
-        password: "ContrasenaSegura2024!"
-        enabled: yes
-        password_never_expires: yes
-        path: "CN=Users,DC=adservice,DC=local"
+    - name: Esperar que WinRM esté disponible después del reinicio
+      win_wait_for:
+        port: 5986
+        host: "{{ ansible_host }}"
+        timeout: 600
+      when: ad_feature.reboot_required
 
-    - name: Crear usuario luis.salgado
-      microsoft.ad.user:
-        name: luis.salgado
-        firstname: Luis
-        lastname: Salgado
-        sam_account_name: luis.salgado
-        upn: luis.salgado@adservice.local
-        password: "ContrasenaSegura2024!"
-        enabled: yes
-        password_never_expires: yes
-        path: "CN=Users,DC=adservice,DC=local"
+    - name: Promover servidor a controlador de dominio
+      microsoft.ad.domain:
+        dns_domain_name: "{{ dominio_dns }}"
+        safe_mode_password: "{{ safe_mode_password }}"
+      register: domain_promotion
+
+    - name: Reiniciar después de la promoción
+      win_reboot:
+      when: domain_promotion.changed
+
+    - name: Esperar que WinRM esté disponible después del reinicio
+      win_wait_for:
+        port: 5986
+        host: "{{ ansible_host }}"
+        timeout: 600
+      when: domain_promotion.changed
