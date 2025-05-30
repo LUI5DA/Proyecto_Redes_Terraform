@@ -33,8 +33,7 @@ This project demonstrates how to create infrastructure on **Azure** using **Terr
 ### 1. Clone this repository
 
 ```bash
-git clone https://github.com/yourusername/terraform-ansible-ad-service.git
-cd terraform-ansible-ad-service
+git clone https://github.com/LUI5DA/ADService_with_terraform.git
 ````
 
 ### 2. Set up Azure credentials
