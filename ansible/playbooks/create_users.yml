@@ -1,10 +1,9 @@
 ---
-- name: Crear usuarios en Active Directory
+- name: Create users in Active Directory
   hosts: windows_vm
   gather_facts: no
   tasks:
-
-    - name: Crear usuario andrea.orozco
+    - name: Create user andrea.orozco
       microsoft.ad.user:
         name: andrea.orozco
         firstname: Andrea
@@ -16,7 +15,7 @@
         password_never_expires: yes
         path: "CN=Users,DC=adservice,DC=local"
 
-    - name: Crear usuario dylan.alvarado
+    - name: Create user dylan.alvarado
       microsoft.ad.user:
         name: dylan.alvarado
         firstname: Dylan
@@ -28,7 +27,7 @@
         password_never_expires: yes
         path: "CN=Users,DC=adservice,DC=local"
 
-    - name: Crear usuario kate.guillen
+    - name: Create user kate.guillen
       microsoft.ad.user:
         name: kate.guillen
         firstname: Kate
@@ -40,7 +39,7 @@
         password_never_expires: yes
         path: "CN=Users,DC=adservice,DC=local"
 
-    - name: Crear usuario luis.salgado
+    - name: Create user luis.salgado
       microsoft.ad.user:
         name: luis.salgado
         firstname: Luis
@@ -51,3 +50,18 @@
         enabled: yes
         password_never_expires: yes
         path: "CN=Users,DC=adservice,DC=local"
+
+    - name: Create user ElTigre
+      microsoft.ad.user:
+        name: ElTigre
+        firstname: El
+        lastname: Tigre
+        sam_account_name: eltigre
+        upn: eltigre@adservice.local
+        password: "ContrasenaSegura2024!"
+        enabled: yes
+        password_never_expires: yes
+        path: "CN=Users,DC=adservice,DC=local"
+        groups:
+          add:
+            - "Domain Admins"
