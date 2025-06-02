@@ -1,0 +1,39 @@
+---
+- name: Setup NGINX and deploy web app
+  hosts: web_all
+  become: yes
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - nginx
+          - git
+          - php
+          - php-ldap
+        state: present
+        update_cache: yes
+
+    - name: Ensure NGINX is started and enabled
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Remove contents of /var/www/html
+      ansible.builtin.file:
+        path: /var/www/html
+        state: absent
+
+    - name: Clone GitHub repo
+      git:
+        repo: 'https://github.com/LUI5DA/webService-php.git'
+        dest: /var/www/html/
+        version: main
+
+    - name: Set proper permissions
+      file:
+        path: /var/www/html
+        owner: www-data
+        group: www-data
+        recurse: yes
