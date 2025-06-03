@@ -21,6 +21,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set up SSH private key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Azure CLI Login
+        run: |
+          az login --service-principal \
+            --username $ARM_CLIENT_ID \
+            --password $ARM_CLIENT_SECRET \
+            --tenant $ARM_TENANT_ID
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -38,6 +51,13 @@ jobs:
         run: |
           ip=$(terraform output -raw load_balancer_public_ip)
           echo "lb_ip=$ip" >> $GITHUB_OUTPUT
+
+      - name: Prepare Ansible Inventory
+        run: |
+          mkdir -p WebService/ansible/inventory
+          envsubst < WebService/ansible/inventory/hosts.yml > WebService/ansible/inventory/rendered_hosts.yml
+        env:
+          lb_ip: ${{ steps.lb_ip.outputs.lb_ip }}
 
       - name: Create A record in Cloudflare
         run: |
@@ -58,7 +78,7 @@ jobs:
       - name: Run Ansible to configure NGINX
         run: |
           ansible-playbook WebService/ansible/playbooks/setup_nginx.yml \
-            -i WebService/ansible/inventory/hosts.yml \
+            -i WebService/ansible/inventory/rendered_hosts.yml \
             --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}"
 
       - name: Deallocate VM1
@@ -67,7 +87,7 @@ jobs:
       - name: Setup SSL on VM0
         run: |
           ansible-playbook WebService/ansible/playbooks/setup_ssl.yml \
-            -i WebService/ansible/inventory/hosts.yml \
+            -i WebService/ansible/inventory/rendered_hosts.yml \
             --limit vm-nginx-0 \
             --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}"
 
@@ -80,7 +100,7 @@ jobs:
       - name: Setup SSL on VM1
         run: |
           ansible-playbook WebService/ansible/playbooks/setup_ssl.yml \
-            -i WebService/ansible/inventory/hosts.yml \
+            -i WebService/ansible/inventory/rendered_hosts.yml \
             --limit vm-nginx-1 \
             --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}"
 
