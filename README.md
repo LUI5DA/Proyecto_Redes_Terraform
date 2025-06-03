@@ -55,7 +55,7 @@ To deploy from GitHub:
 
 ## 🌐 Access
 
-Once the workflow completes, your website will be available at: https://<CLOUDFLARE_RECORD_NAME>.<CLOUDFLARE_DOMAIN>
+Once the workflow completes, your website will be available at: / https://<CLOUDFLARE_RECORD_NAME>.<CLOUDFLARE_DOMAIN>
 
 
 ---
