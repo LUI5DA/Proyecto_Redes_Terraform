@@ -20,20 +20,20 @@ This project automates the deployment of a scalable web infrastructure on **Azur
 
 ## 📁 Project Structure
 
-WebService/
-├── ansible/
-│ ├── inventory/
-│ │ └── hosts.yml
-│ └── playbooks/
-│ ├── setup_nginx.yml
-│ └── setup_ssl.yml
-├── terraform/
-│ ├── main.tf
-│ ├── variables.tf
-│ └── outputs.tf
-└── .github/
-└── workflows/
-└── deploy.yml
+WebService/ <br>
+├── ansible/ <br>
+│ ├── inventory/ <br>
+│ │ └── hosts.yml <br>
+│ └── playbooks/ <br>
+│ ├── setup_nginx.yml <br>
+│ └── setup_ssl.yml <br>
+├── terraform/ <br>
+│ ├── main.tf <br>
+│ ├── variables.tf <br>
+│ └── outputs.tf <br>
+└── .github/ <br>
+└── workflows/ <br>
+└── deploy.yml <br>
 
 
 ## 🔐 Required Secrets
