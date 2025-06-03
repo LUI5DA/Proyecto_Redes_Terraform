@@ -26,21 +26,17 @@ jobs:
         with:
           terraform_version: 1.6.0
 
-      - name: Initialize Terraform
+      - name: Terraform Init & Apply
         working-directory: WebService/terraform
-        run: terraform init
-
-      - name: Apply Terraform configuration
-        working-directory: WebService/terraform
-        run: terraform apply -auto-approve
-
-      - name: Get Load Balancer public IP
-        id: get_ip
         run: |
-          ip=$(az network public-ip show \
-            --resource-group rg-nginx-setup \
-            --name lb-public-ip \
-            --query "ipAddress" -o tsv)
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Get Load Balancer Public IP
+        id: lb_ip
+        working-directory: WebService/terraform
+        run: |
+          ip=$(terraform output -raw load_balancer_public_ip)
           echo "lb_ip=$ip" >> $GITHUB_OUTPUT
 
       - name: Create A record in Cloudflare
@@ -51,7 +47,7 @@ jobs:
           --data '{
             "type":"A",
             "name":"'"$CLOUDFLARE_RECORD_NAME"'",
-            "content":"${{ steps.get_ip.outputs.lb_ip }}",
+            "content":"${{ steps.lb_ip.outputs.lb_ip }}",
             "ttl":120,
             "proxied":false
           }'
@@ -59,20 +55,21 @@ jobs:
       - name: Install Ansible
         run: sudo apt-get update && sudo apt-get install -y ansible
 
-      - name: Configure NGINX with Ansible
+      - name: Run Ansible to configure NGINX
         run: |
           ansible-playbook WebService/ansible/playbooks/setup_nginx.yml \
             -i WebService/ansible/inventory/hosts.yml \
-            --extra-vars "lb_ip=${{ steps.get_ip.outputs.lb_ip }}"
+            --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}"
 
       - name: Deallocate VM1
         run: az vm deallocate --name vm-nginx-1 --resource-group rg-nginx-setup
 
-      - name: Set up SSL on VM0
+      - name: Setup SSL on VM0
         run: |
           ansible-playbook WebService/ansible/playbooks/setup_ssl.yml \
             -i WebService/ansible/inventory/hosts.yml \
-            --limit vm-nginx-0
+            --limit vm-nginx-0 \
+            --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}"
 
       - name: Deallocate VM0
         run: az vm deallocate --name vm-nginx-0 --resource-group rg-nginx-setup
@@ -80,11 +77,12 @@ jobs:
       - name: Start VM1
         run: az vm start --name vm-nginx-1 --resource-group rg-nginx-setup
 
-      - name: Set up SSL on VM1
+      - name: Setup SSL on VM1
         run: |
           ansible-playbook WebService/ansible/playbooks/setup_ssl.yml \
             -i WebService/ansible/inventory/hosts.yml \
-            --limit vm-nginx-1
+            --limit vm-nginx-1 \
+            --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}"
 
       - name: Start VM0
         run: az vm start --name vm-nginx-0 --resource-group rg-nginx-setup
