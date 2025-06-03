@@ -79,7 +79,8 @@ jobs:
         run: |
           ansible-playbook WebService/ansible/playbooks/setup_nginx.yml \
             -i WebService/ansible/inventory/rendered_hosts.yml \
-            --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}"
+            --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}" \
+             -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"'
 
       - name: Deallocate VM1
         run: az vm deallocate --name vm-nginx-1 --resource-group rg-nginx-setup
@@ -89,7 +90,8 @@ jobs:
           ansible-playbook WebService/ansible/playbooks/setup_ssl.yml \
             -i WebService/ansible/inventory/rendered_hosts.yml \
             --limit vm-nginx-0 \
-            --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}"
+            --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}" \
+             -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"'
 
       - name: Deallocate VM0
         run: az vm deallocate --name vm-nginx-0 --resource-group rg-nginx-setup
@@ -102,7 +104,8 @@ jobs:
           ansible-playbook WebService/ansible/playbooks/setup_ssl.yml \
             -i WebService/ansible/inventory/rendered_hosts.yml \
             --limit vm-nginx-1 \
-            --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}"
+            --extra-vars "lb_ip=${{ steps.lb_ip.outputs.lb_ip }}" \
+             -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"'
 
       - name: Start VM0
         run: az vm start --name vm-nginx-0 --resource-group rg-nginx-setup
