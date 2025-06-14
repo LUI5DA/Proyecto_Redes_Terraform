@@ -1,4 +1,4 @@
-- name: Instalar y configurar Active Directory en Windows Server
+- name: Install and configure Active Directory on Windows Server
   hosts: windows_vm
   gather_facts: false
   collections:
@@ -8,35 +8,35 @@
     safe_mode_password: "ElTigre2025+"
   tasks:
 
-    - name: Instalar el rol AD-Domain-Services
+    - name: Install the AD-Domain-Services role
       win_feature:
         name: AD-Domain-Services
         include_management_tools: yes
         state: present
       register: ad_feature
 
-    - name: Reiniciar si es necesario después de instalar AD DS
+    - name: Reboot if required after installing AD DS
       win_reboot:
       when: ad_feature.reboot_required
 
-    - name: Esperar que WinRM esté disponible después del reinicio
+    - name: Wait for WinRM to become available after reboot
       win_wait_for:
         port: 5986
         host: "{{ ansible_host }}"
         timeout: 600
       when: ad_feature.reboot_required
 
-    - name: Promover servidor a controlador de dominio
+    - name: Promote server to domain controller
       microsoft.ad.domain:
         dns_domain_name: "{{ dominio_dns }}"
         safe_mode_password: "{{ safe_mode_password }}"
       register: domain_promotion
 
-    - name: Reiniciar después de la promoción
+    - name: Reboot after domain promotion
       win_reboot:
       when: domain_promotion.changed
 
-    - name: Esperar que WinRM esté disponible después del reinicio
+    - name: Wait for WinRM to become available after reboot
       win_wait_for:
         port: 5986
         host: "{{ ansible_host }}"
