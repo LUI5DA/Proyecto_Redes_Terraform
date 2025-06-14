@@ -1,0 +1,65 @@
+name: Deploy Active Directory Infrastructure
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-ad:
+    runs-on: ubuntu-latest
+
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Azure CLI Login
+        run: |
+          az login --service-principal \
+            --username $ARM_CLIENT_ID \
+            --password $ARM_CLIENT_SECRET \
+            --tenant $ARM_TENANT_ID
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Init & Apply
+        working-directory: ActiveDirectoryService/terraform
+        run: |
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Get AD VM Public IP
+        id: ad_ip
+        working-directory: ActiveDirectoryService/terraform
+        run: |
+          ip=$(terraform output -raw vm_public_ip)
+          echo "ad_ip=$ip" >> $GITHUB_OUTPUT
+
+      - name: Install Ansible and pywinrm
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible python3-pip
+          pip install pywinrm
+
+      - name: Prepare Ansible Inventory
+        run: |
+          mkdir -p ActiveDirectoryService/ansible/inventory
+          envsubst < ActiveDirectoryService/ansible/inventory/hosts.yml > ActiveDirectoryService/ansible/inventory/rendered_hosts.yml
+        env:
+          ad_ip: ${{ steps.ad_ip.outputs.ad_ip }}
+          ansible_user: Administrador
+          ansible_password: ${{ secrets.VM_ADMIN_PASSWORD }}
+
+
+      - name: Run Ansible to install Active Directory
+        run: |
+          ansible-playbook ActiveDirectoryService/ansible/playbooks/install_ad.yml \
+            -i ActiveDirectoryService/ansible/inventory/rendered_hosts.yml
+
