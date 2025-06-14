@@ -7,6 +7,6 @@ output "vnet_name" {
 }
 
 output "windows_vm_public_ip" {
-  description = "Dirección IP pública de la VM de Windows"
+  description = "Windows VM's public IP Address"
   value       = azurerm_public_ip.windows_vm_ip.ip_address
 }
