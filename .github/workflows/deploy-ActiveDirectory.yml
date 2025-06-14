@@ -51,14 +51,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ansible python3-pip
           pip install pywinrm
-
+  
       - name: Prepare Ansible Inventory
         run: |
           mkdir -p ActiveDirectoryService/ansible/inventory
           envsubst < ActiveDirectoryService/ansible/inventory/hosts.yml > ActiveDirectoryService/ansible/inventory/rendered_hosts.yml
+          echo "Rendered Inventory:"
+          cat ActiveDirectoryService/ansible/inventory/rendered_hosts.yml  # Debug: Check the rendered file
         env:
           ad_ip: ${{ steps.ad_ip.outputs.ad_ip }}
-          ansible_user: Administrador
+          ansible_user: ${{ secrets.VM_ADMIN_USER }}
           ansible_password: ${{ secrets.VM_ADMIN_PASSWORD }}
 
       - name: Run Ansible to install Active Directory
