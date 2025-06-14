@@ -57,9 +57,14 @@ jobs:
           ansible_user: Administrador
           ansible_password: ${{ secrets.VM_ADMIN_PASSWORD }}
 
-
       - name: Run Ansible to install Active Directory
         run: |
           ansible-playbook ActiveDirectoryService/ansible/playbooks/install_ad.yml \
             -i ActiveDirectoryService/ansible/inventory/rendered_hosts.yml
+
+      - name: Run Ansible to add users to Active Directory
+        run: |
+          ansible-playbook ActiveDirectoryService/ansible/playbooks/create_users.yml \
+            -i ActiveDirectoryService/ansible/inventory/rendered_hosts.yml
+
 
