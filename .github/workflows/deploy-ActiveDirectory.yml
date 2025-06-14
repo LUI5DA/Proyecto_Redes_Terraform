@@ -45,17 +45,18 @@ jobs:
             --query "publicIps" -o tsv)
           echo "ad_ip=$ip" >> $GITHUB_OUTPUT
 
-
-      - name: Install Ansible and pywinrm
+      - name: Install Ansible, pywinrm, and dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ansible python3-pip
-          pip3 install --upgrade pip
-          sudo pip3 install pywinrm
-          pip3 install pywinrm requests
-          pip3 list  # Verify installation of pywinrm and requests
+          sudo apt-get install -y ansible python3-pip python3-dev libffi-dev gcc
+          sudo apt-get install -y python3-pip
+          
+          # Install pywinrm and requests with sudo to avoid permission issues
+          sudo pip3 install pywinrm requests
+          
+          # Ensure the required packages are available
+          sudo pip3 list
 
-  
       - name: Prepare Ansible Inventory
         run: |
           mkdir -p ActiveDirectoryService/ansible/inventory
@@ -76,5 +77,3 @@ jobs:
         run: |
           ansible-playbook ActiveDirectoryService/ansible/playbooks/create_users.yml \
             -i ActiveDirectoryService/ansible/inventory/rendered_hosts.yml
-
-
