@@ -24,17 +24,6 @@ jobs:
             --password $ARM_CLIENT_SECRET \
             --tenant $ARM_TENANT_ID
 
-      # - name: Set up Terraform
-      #   uses: hashicorp/setup-terraform@v3
-      #   with:
-      #     terraform_version: 1.6.0
-
-      # - name: Terraform Init & Apply
-      #   working-directory: ActiveDirectoryService/terraform
-      #   run: |
-      #     terraform init
-      #     terraform apply -auto-approve
-
       - name: Get AD VM Public IP from Azure CLI
         id: ad_ip
         run: |
@@ -45,20 +34,22 @@ jobs:
             --query "publicIps" -o tsv)
           echo "ad_ip=$ip" >> $GITHUB_OUTPUT
 
+      - name: Check if AD VM IP is retrieved
+        run: |
+          echo "AD IP Address: ${{ steps.ad_ip.outputs.ad_ip }}"
+        env:
+          ad_ip: ${{ steps.ad_ip.outputs.ad_ip }}
+
       - name: Install Ansible, pywinrm, and dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y ansible python3-pip python3-dev libffi-dev gcc
-          sudo apt-get install -y python3-pip
-          
-          # Install pywinrm and requests with sudo to avoid permission issues
           sudo pip3 install pywinrm requests
-          
-          # Ensure the required packages are available
           sudo pip3 list
 
       - name: Prepare Ansible Inventory
         run: |
+          echo "Preparing inventory with AD VM IP: ${{ steps.ad_ip.outputs.ad_ip }}"
           mkdir -p ActiveDirectoryService/ansible/inventory
           envsubst < ActiveDirectoryService/ansible/inventory/hosts.yml > ActiveDirectoryService/ansible/inventory/rendered_hosts.yml
           echo "Rendered Inventory:"
