@@ -39,8 +39,8 @@ jobs:
         id: ad_ip
         run: |
           ip=$(az vm show \
-            --resource-group <RESOURCE_GROUP> \
-            --name <VM_NAME> \
+            --resource-group ad-service \
+            --name windows-vm1 \
             --show-details \
             --query "publicIps" -o tsv)
           echo "ad_ip=$ip" >> $GITHUB_OUTPUT
