@@ -35,12 +35,16 @@ jobs:
           terraform init
           terraform apply -auto-approve
 
-      - name: Get AD VM Public IP
+      - name: Get AD VM Public IP from Azure CLI
         id: ad_ip
-        working-directory: ActiveDirectoryService/terraform
         run: |
-          ip=$(terraform output -raw vm_public_ip)
+          ip=$(az vm show \
+            --resource-group <RESOURCE_GROUP> \
+            --name <VM_NAME> \
+            --show-details \
+            --query "publicIps" -o tsv)
           echo "ad_ip=$ip" >> $GITHUB_OUTPUT
+
 
       - name: Install Ansible and pywinrm
         run: |
