@@ -1,3 +1,6 @@
+#########################
+# Terraform Settings
+#########################
 terraform {
   required_providers {
     azurerm = {
@@ -8,17 +11,24 @@ terraform {
   required_version = ">= 1.0"
 }
 
+#########################
+# Terraform Settings
+#########################
 provider "azurerm" {
   features {}
 }
 
-#Grupo de recursos
+#########################
+# Core Infrastructure
+#########################
+
+# Resource Group to hold all Azure resources
 resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
   location = var.location
 }
 
-# Red virtual
+# Virtual Network providing the address space
 resource "azurerm_virtual_network" "vnet" {
   name                = "vnet"
   address_space       = ["10.0.0.0/16"]
@@ -26,7 +36,7 @@ resource "azurerm_virtual_network" "vnet" {
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-# Subred
+# Subnet carved out of the VNet for the VM
 resource "azurerm_subnet" "subnet" {
   name                 = "subnet"
   resource_group_name  = azurerm_resource_group.rg.name
@@ -34,7 +44,7 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-# IP pública para la VM
+# public IP address for the VM
 resource "azurerm_public_ip" "windows_vm_ip" {
   name                = "windows-vm-ip"
   location            = azurerm_resource_group.rg.location
@@ -43,12 +53,13 @@ resource "azurerm_public_ip" "windows_vm_ip" {
   sku                 = "Basic"
 }
 
-# Grupo de seguridad para permitir RDP y WinRM
+# Network Security Group to allow RDP, WINRM and LDAP
 resource "azurerm_network_security_group" "windows_nsg" {
   name                = "windows-nsg"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
+  # RDP
   security_rule {
     name                       = "allow_rdp"
     priority                   = 1000
@@ -61,6 +72,7 @@ resource "azurerm_network_security_group" "windows_nsg" {
     destination_address_prefix = "*"
   }
 
+  # HTTP
   security_rule {
     name                       = "allow_web_traffic_http"
     priority                   = 1010
@@ -73,6 +85,7 @@ resource "azurerm_network_security_group" "windows_nsg" {
     destination_address_prefix = "*"
   }
 
+  # HTTPS
   security_rule {
     name                       = "allow_web_traffic_https"
     priority                   = 1020
@@ -85,6 +98,7 @@ resource "azurerm_network_security_group" "windows_nsg" {
     destination_address_prefix = "*"
   }
 
+   # PowerShell Remoting over HTTPS
   security_rule {
     name                       = "allow_powershell_remoting_https"
     priority                   = 1030
@@ -97,6 +111,7 @@ resource "azurerm_network_security_group" "windows_nsg" {
     destination_address_prefix = "*"
   }
 
+  # WinRM (HTTP)
   security_rule {
     name                       = "allow_WinRM"
     priority                   = 1040
@@ -109,6 +124,7 @@ resource "azurerm_network_security_group" "windows_nsg" {
     destination_address_prefix = "*"
   }
 
+  # LDAP (plain)
   security_rule {
     name                       = "allow_LDAP"
     priority                   = 1050
@@ -121,6 +137,7 @@ resource "azurerm_network_security_group" "windows_nsg" {
     destination_address_prefix = "*"
   }
 
+  # LDAPS (secure)
   security_rule {
     name                       = "allow_LDAPS"
     priority                   = 1060
@@ -134,7 +151,7 @@ resource "azurerm_network_security_group" "windows_nsg" {
   }
 }
 
-# NIC
+# NIC that attaches the VM to the subnet and public IP
 resource "azurerm_network_interface" "windows_nic" {
   name                = "windows-nic"
   location            = azurerm_resource_group.rg.location
@@ -148,13 +165,13 @@ resource "azurerm_network_interface" "windows_nic" {
   }
 }
 
-# Asociar NSG a la NIC
+# Link the NSG to the NIC
 resource "azurerm_network_interface_security_group_association" "windows_nic_nsg" {
   network_interface_id      = azurerm_network_interface.windows_nic.id
   network_security_group_id = azurerm_network_security_group.windows_nsg.id
 }
 
-# VM de Windows Server
+# Windows Server VM
 resource "azurerm_windows_virtual_machine" "windows_vm" {
   name                  = var.vm_name
   resource_group_name   = azurerm_resource_group.rg.name
@@ -181,7 +198,7 @@ resource "azurerm_windows_virtual_machine" "windows_vm" {
   provision_vm_agent = true
 }
 
-#Extension para configurar winrm con script de inicializacion
+#Extension to configure winrm with inicialization script
 resource "azurerm_virtual_machine_extension" "winrm_config" {
   name                 = "winrm-config"
   virtual_machine_id   = azurerm_windows_virtual_machine.windows_vm.id
