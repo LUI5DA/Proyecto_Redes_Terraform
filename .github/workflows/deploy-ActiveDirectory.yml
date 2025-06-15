@@ -51,12 +51,15 @@ jobs:
         env:
           ad_ip: ${{ steps.ad_ip.outputs.ad_ip }}
 
-      - name: Install Ansible, pywinrm, and dependencies
+      - name: Install Ansible and WinRM dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y ansible python3-pip python3-dev libffi-dev gcc
-          sudo pip3 install pywinrm requests
-          sudo pip3 list
+          pip3 install --user pywinrm requests
+          export PATH=$PATH:~/.local/bin
+          ansible --version
+          python3 -m pip show pywinrm
+
 
       - name: Prepare Ansible Inventory
         run: |
