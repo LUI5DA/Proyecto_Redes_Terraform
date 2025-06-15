@@ -20,7 +20,7 @@
       when: ad_feature.reboot_required
 
     - name: Wait for WinRM to become available after reboot
-      win_wait_for:
+      wait_for_connection:
         port: 5986
         host: "{{ ansible_host }}"
         timeout: 600
@@ -37,7 +37,7 @@
       when: domain_promotion.changed
 
     - name: Wait for WinRM to become available after reboot
-      win_wait_for:
+      wait_for_connection:
         port: 5986
         host: "{{ ansible_host }}"
         timeout: 600
