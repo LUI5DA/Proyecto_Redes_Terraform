@@ -13,35 +13,35 @@
           - php-ldap
         state: present
         update_cache: yes
-
-    - name: Crear archivo de configuración PHP para NGINX
+        
+    - name: Create PHP config for NGINX
       copy:
         dest: /etc/nginx/sites-available/default
         content: |
           server {
               listen 80 default_server;
               listen [::]:80 default_server;
-
+    
               root /var/www/html;
               index index.php index.html index.htm;
-
+    
               server_name _;
-
+    
               location / {
                   try_files $uri $uri/ =404;
               }
-
+    
               location ~ \.php$ {
                   include snippets/fastcgi-php.conf;
-                  fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+                  fastcgi_pass unix:/run/php/php8.1-fpm.sock;
               }
-
+    
               location ~ /\.ht {
                   deny all;
               }
           }
-
-    - name: Recargar NGINX
+    
+    - name: Reload NGINX
       service:
         name: nginx
         state: reloaded
