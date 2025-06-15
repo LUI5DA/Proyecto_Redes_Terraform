@@ -34,16 +34,16 @@ jobs:
             --password $ARM_CLIENT_SECRET \
             --tenant $ARM_TENANT_ID
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.6.0
+      # - name: Set up Terraform
+      #   uses: hashicorp/setup-terraform@v3
+      #   with:
+      #     terraform_version: 1.6.0
 
-      - name: Terraform Init & Apply
-        working-directory: WebService/terraform
-        run: |
-          terraform init
-          terraform apply -auto-approve
+      # - name: Terraform Init & Apply
+      #   working-directory: WebService/terraform
+      #   run: |
+      #     terraform init
+      #     terraform apply -auto-approve
 
       - name: Get Load Balancer Public IP
         id: lb_ip
@@ -59,18 +59,18 @@ jobs:
         env:
           lb_ip: ${{ steps.lb_ip.outputs.lb_ip }}
 
-      - name: Create A record in Cloudflare
-        run: |
-          curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/dns_records" \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-          -H "Content-Type: application/json" \
-          --data '{
-            "type":"A",
-            "name":"'"$CLOUDFLARE_RECORD_NAME"'",
-            "content":"${{ steps.lb_ip.outputs.lb_ip }}",
-            "ttl":120,
-            "proxied":false
-          }'
+      # - name: Create A record in Cloudflare
+      #   run: |
+      #     curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/dns_records" \
+      #     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+      #     -H "Content-Type: application/json" \
+      #     --data '{
+      #       "type":"A",
+      #       "name":"'"$CLOUDFLARE_RECORD_NAME"'",
+      #       "content":"${{ steps.lb_ip.outputs.lb_ip }}",
+      #       "ttl":120,
+      #       "proxied":false
+      #     }'
 
       - name: Install Ansible
         run: sudo apt-get update && sudo apt-get install -y ansible
