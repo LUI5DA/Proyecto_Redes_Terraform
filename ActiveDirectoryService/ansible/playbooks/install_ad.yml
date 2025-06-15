@@ -21,10 +21,13 @@
 
     - name: Wait for WinRM to become available after reboot
       wait_for_connection:
-        port: 5986
-        host: "{{ ansible_host }}"
         timeout: 600
-      when: ad_feature.reboot_required
+        sleep: 15
+        delay: 60
+      delegate_to: localhost
+      vars:
+        ansible_host: "{{ hostvars[inventory_hostname].ansible_host }}"
+
 
     - name: Promote server to domain controller
       microsoft.ad.domain:
@@ -38,7 +41,10 @@
 
     - name: Wait for WinRM to become available after reboot
       wait_for_connection:
-        port: 5986
-        host: "{{ ansible_host }}"
         timeout: 600
-      when: domain_promotion.changed
+        sleep: 15
+        delay: 60
+      delegate_to: localhost
+      vars:
+        ansible_host: "{{ hostvars[inventory_hostname].ansible_host }}"
+
