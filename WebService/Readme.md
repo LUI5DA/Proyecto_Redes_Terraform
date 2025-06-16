@@ -21,20 +21,27 @@ This project automates the deployment of a scalable web infrastructure on **Azur
 
 ## 📁 Project Structure
 
-WebService/ <br>
-├── ansible/ <br>
-│ ├── inventory/ <br>
-│ │ └── hosts.yml <br>
-│ └── playbooks/ <br>
-│ ├── setup_nginx.yml <br>
-│ └── setup_ssl.yml <br>
-├── terraform/ <br>
-│ ├── main.tf <br>
-│ ├── variables.tf <br>
-│ └── outputs.tf <br>
-└── .github/ <br>
-└── workflows/ <br>
-└── deploy.yml <br>
+```
+WebService/
+├── Readme.md
+├── ansible/
+│   ├── inventory/
+│   │   ├── hosts.yml
+│   │   └── group_vars/
+│   └── playbooks/
+│       ├── setup_nginx.yml
+│       └── setup_ssl.yml
+└── terraform/
+    ├── id_rsa.pub
+    ├── main.tf
+    ├── outputs.tf
+    ├── terraform.tfstate.backup
+    ├── terraform.tfvars
+    └── variables.tf
+.github/
+└── workflows/
+    └── deploy-WebService.yml
+```
 
 
 ## 🔐 Required Secrets
@@ -44,6 +51,8 @@ Configure the following **secrets** in your private GitHub repository:
 - `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`
 - `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_DOMAIN`, `CLOUDFLARE_RECORD_NAME`
 - `SSH_PRIVATE_KEY` – used to SSH into Azure VMs
+
+  (agregar la parte de clonar el repo con el codigo de php)
 
 ## ⚙️ Deployment
 
@@ -61,4 +70,20 @@ Once the workflow completes, your website will be available at: / https://<CLOUD
 
 ---
 
-Created with ☁️ by Luis David Salgado
+## 👤 Author
+
+- [LUI5DA](https://github.com/LUI5DA)
+
+---
+
+## ⚡ Notes
+
+- Destroy infrastructure after use to avoid unnecessary costs:
+  ```bash
+  cd terraform
+  terraform destroy
+  ```
+- Customize `variables.tf` and `terraform.tfvars` for your environment.
+- The pipeline can be extended to include tests, notifications, or more advanced deployment logic.
+
+---
