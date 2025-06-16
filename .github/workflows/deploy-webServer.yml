@@ -34,16 +34,16 @@ jobs:
             --password $ARM_CLIENT_SECRET \
             --tenant $ARM_TENANT_ID
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.6.0
+      # - name: Set up Terraform
+      #   uses: hashicorp/setup-terraform@v3
+      #   with:
+      #     terraform_version: 1.6.0
 
-      - name: Terraform Init & Apply
-        working-directory: WebService/terraform
-        run: |
-          terraform init
-          terraform apply -auto-approve
+      # - name: Terraform Init & Apply
+      #   working-directory: WebService/terraform
+      #   run: |
+      #     terraform init
+      #     terraform apply -auto-approve
 
       # - name: Get Load Balancer Public IP
       #   id: lb_ip
