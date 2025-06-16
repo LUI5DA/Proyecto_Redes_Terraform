@@ -11,8 +11,15 @@
           - git
           - php
           - php-ldap
+          - php-fpm 
         state: present
         update_cache: yes
+
+    - name: Ensure PHP-FPM is started and enabled
+      service:
+        name: php8.1-fpm
+        state: started
+        enabled: yes
         
     - name: Create PHP config for NGINX
       copy:
@@ -34,13 +41,15 @@
               location ~ \.php$ {
                   include snippets/fastcgi-php.conf;
                   fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+                  fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                  include fastcgi_params;
               }
     
               location ~ /\.ht {
                   deny all;
               }
           }
-    
+          
     - name: Reload NGINX
       service:
         name: nginx
@@ -52,10 +61,11 @@
         state: started
         enabled: yes
 
-    - name: Remove contents of /var/www/html
+    - name: Clean up contents of /var/www/html
       ansible.builtin.file:
-        path: /var/www/html
+        path: /var/www/html/*
         state: absent
+        force: yes
 
     - name: Clone GitHub repo
       git:
