@@ -45,12 +45,22 @@ jobs:
           terraform init
           terraform apply -auto-approve
 
-      - name: Get Load Balancer Public IP
+      # - name: Get Load Balancer Public IP
+      #   id: lb_ip
+      #   working-directory: WebService/terraform
+      #   run: |
+      #     ip=$(terraform output -raw load_balancer_public_ip)
+      #     echo "lb_ip=$ip" >> $GITHUB_OUTPUT
+
+      - name: Get Public IP of Load Balancer
         id: lb_ip
-        working-directory: WebService/terraform
         run: |
-          ip=$(terraform output -raw load_balancer_public_ip)
+          ip=$(az network public-ip show \
+            --resource-group rg-nginx-setup \
+            --name lb-public-ip \
+            --query "ipAddress" -o tsv)
           echo "lb_ip=$ip" >> $GITHUB_OUTPUT
+
 
       - name: Prepare Ansible Inventory
         run: |
