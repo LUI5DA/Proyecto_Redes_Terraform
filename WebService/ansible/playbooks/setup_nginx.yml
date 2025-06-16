@@ -61,11 +61,11 @@
         state: started
         enabled: yes
 
-    - name: Clean up contents of /var/www/html
-      ansible.builtin.file:
-        path: /var/www/html/*
-        state: absent
-        force: yes
+    - name: Clean up all contents in /var/www/html
+      ansible.builtin.shell: rm -rf /var/www/html/{*,.*} || true
+      args:
+        executable: /bin/bash
+
 
     - name: Clone GitHub repo
       git:
