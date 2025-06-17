@@ -3,7 +3,7 @@
   hosts: web_all
   become: yes
   vars:
-    domain_name: proyectoredes.site  # <-- reemplaza con tu dominio real
+    domain_name: parte1.proyectoredes.site  # <-- reemplaza con tu dominio real
     email: gamezdavid208@gmail.com  # <-- email para notificaciones de Let's Encrypt
 
   tasks:
