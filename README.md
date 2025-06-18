@@ -33,6 +33,9 @@ Proyecto_Redes_Terraform/
         └── deploy-webServer.yml
 ```
 
+![image](https://github.com/user-attachments/assets/1f034025-e266-44d5-b5dd-f8e2ae3e5ede)
+
+
 ---
 
 ## 🛠️ Technologies
