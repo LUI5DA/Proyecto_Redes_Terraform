@@ -33,7 +33,8 @@ Proyecto_Redes_Terraform/
         └── deploy-webServer.yml
 ```
 
-<center>![image](https://github.com/user-attachments/assets/5489e55d-a5f0-46bf-b5d7-a01b62332090)</center>
+
+![image](https://github.com/user-attachments/assets/5489e55d-a5f0-46bf-b5d7-a01b62332090)
 
 
 
