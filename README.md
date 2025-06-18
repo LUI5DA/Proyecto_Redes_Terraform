@@ -1,5 +1,5 @@
 
-# 🌐 Proyecto Redes Terraform: Automated Active Directory & Web Server on Azure
+# 🌐 Networking Project: Automated Active Directory & Web Server on Azure
 
 Deploy enterprise infrastructure in Azure with a single click!  
 This project provisions and configures two essential services—**Active Directory** and a **Web Server**—using Infrastructure as Code, automated configuration, and CI/CD pipelines.
