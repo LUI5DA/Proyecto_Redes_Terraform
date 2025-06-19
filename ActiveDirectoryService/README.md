@@ -71,6 +71,7 @@ To enable the pipeline to deploy to your Azure subscription and connect via Ansi
 - `VM_ADMIN_PASSWORD`
 
 These are required for Terraform to authenticate with Azure and then for Ansible to connect to the VM to configure it.
+> ⚠️ **Important:** the VM_ADMIN_USER and VM_ADMIN_PASSWORD must match with the credentialas set on the variables.tfvars file.
 
 ### 3️⃣ Trigger the Workflow
 
