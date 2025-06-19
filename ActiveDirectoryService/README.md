@@ -45,7 +45,6 @@ ActiveDirectoryService/
 - **Ansible** — Automated configuration management and service deployment on the VM ⚙️
 - **GitHub Actions** — Workflow orchestration and CI/CD automation 🏃‍♂️
 - **Azure** — Cloud platform hosting the resources ☁️
-- **Cloudfare DNS** — the Cloudfare DNS API is used to create a DNS Register for our domain.
 ---
 
 ## 🚦 How to Test the Project using GitHub Actions
@@ -53,7 +52,7 @@ ActiveDirectoryService/
 This project is designed to be tested and deployed automatically using GitHub Actions.  
 Everything is orchestrated by the pipeline defined in `.github/workflows/deploy.yml`.
 
-### 1️⃣ Fork or Clone the Repository
+### 1️⃣ Fork (Recomended) or Clone the Repository
 
 ```bash
 git clone https://github.com/LUI5DA/Proyecto_Redes_Terraform.git
@@ -68,20 +67,22 @@ To enable the pipeline to deploy to your Azure subscription and connect via Ansi
 - `ARM_CLIENT_SECRET`
 - `ARM_SUBSCRIPTION_ID`
 - `ARM_TENANT_ID`
-- (Luego agregar las de cloudfare y usuario administrador del AD)
+- `VM_ADMIN_USER`
+- `VM_ADMIN_PASSWORD`
 
-These are required for Terraform to authenticate with Azure.
+These are required for Terraform to authenticate with Azure and then for Ansible to connect to the VM to configure it.
 
-### 3️⃣ Push Changes or Trigger the Workflow
+### 3️⃣ Trigger the Workflow
 
-- Any push to `main` (or a pull request) will automatically trigger the pipeline.
+- When you go to the **Actions** section and run this workflow.
 - The workflow will:
   1. Checkout your code.
   2. Set up Terraform and authenticate with Azure.
   3. Run `terraform init`, `plan`, and `apply` to provision the infrastructure.
   4. Extract the public IP and credentials from Azure.
-  5. Run the Ansible playbooks to configure the VM and deploy Active Directory.
-  6. Optionally, run checks/tests and clean up if required.
+  5. Run an Ansible playbook to configure the VM and deploy Active Directory.
+  6. Run an Ansible playbook to add users to the Active Directory.
+  7. Optionally, run checks/tests and clean up if required.
 
 You can monitor the workflow progress and logs under the **Actions** tab on GitHub.
 
@@ -110,9 +111,6 @@ If you want to run the steps locally:
    ansible-playbook -i inventory/hosts.yml playbooks/install_ad.yml
    ansible-playbook -i inventory/hosts.yml playbooks/create_users.yml
    ```
-
-(agregar lo del par de llaves y configurar la ruta)
-
 ---
 
 ## 👤 Author
