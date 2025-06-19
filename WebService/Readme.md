@@ -66,12 +66,22 @@ If you deployed the AD before, you should have the above secrets configured yet.
 
 ## ⚙️ Deployment
 
-To deploy from GitHub:
 
-1. Go to the **Actions** tab.
-2. Select `Deploy WebService Infrastructure...`
-3. Click **Run workflow**
-4. The infrastructure and configuration will be handled automatically.
+### To deploy from GitHub:
+
+#### Set up the code for the web page
+1. Fork [This Repo](https://github.com/LUI5DA/webService-php)
+2. Go to webService-php/php/login.php
+3. Update the ip in line 10, with your Windows Server VM IP wich serves the Active Directory Service
+
+
+#### set up the code repo in this project
+1. go to ansible/playbooks/setup_nginx.yml
+2. update the line 72, paste the url of the repo that you forked before with the webpage code.
+3. Go to the **Actions** tab.
+4. Select `Deploy WebService Infrastructure...`
+5. Click **Run workflow**
+6. The infrastructure and configuration will be handled automatically.
 
 ## 🌐 Access
 
