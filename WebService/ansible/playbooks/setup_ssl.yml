@@ -95,9 +95,11 @@
           After=network-online.target
           Wants=network-online.target
       notify: Reload systemd
-    
-    - name: Reload systemd
-      command: systemctl daemon-reexec
+      
+handlers:
+  - name: Reload systemd
+    command: systemctl daemon-reexec
+
 
 
 
