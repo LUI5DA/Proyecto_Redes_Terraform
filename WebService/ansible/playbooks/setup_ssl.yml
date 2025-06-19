@@ -1,13 +1,54 @@
+# ---
+# - name: Instalar Certbot y generar certificado en web_primary
+#   hosts: web_all
+#   become: yes
+#   vars:
+#     domain_name: parte1.proyectoredes.site  # <-- reemplaza con tu dominio real
+#     email: gamezdavid208@gmail.com  # <-- email para notificaciones de Let's Encrypt
+
+#   tasks:
+#     - name: Instalar Certbot y plugin para NGINX
+#       apt:
+#         name:
+#           - certbot
+#           - python3-certbot-nginx
+#         state: present
+#         update_cache: yes
+
+#     - name: Obtener certificado SSL de Let's Encrypt
+#       command: >
+#         certbot --nginx -n
+#         --agree-tos
+#         --redirect
+#         --hsts
+#         --email {{ email }}
+#         -d {{ domain_name }}
+
+#     - name: Verificar que el certificado se generó
+#       stat:
+#         path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+#       register: cert_status
+
+#     - name: Mostrar resultado
+#       debug:
+#         msg: "✅ Certificado generado correctamente"
+#       when: cert_status.stat.exists
+
+#     - name: Recargar NGINX para aplicar cambios de certificado
+#       service:
+#         name: nginx
+#         state: reloaded
+
 ---
-- name: Instalar Certbot y generar certificado en web_primary
+- name: Install Certbot and configure HTTPS using Let's Encrypt
   hosts: web_all
   become: yes
   vars:
-    domain_name: parte1.proyectoredes.site  # <-- reemplaza con tu dominio real
-    email: gamezdavid208@gmail.com  # <-- email para notificaciones de Let's Encrypt
+    domain_name: parte1.proyectoredes.site
+    email: gamezdavid208@gmail.com
 
   tasks:
-    - name: Instalar Certbot y plugin para NGINX
+    - name: Install Certbot and NGINX plugin
       apt:
         name:
           - certbot
@@ -15,7 +56,12 @@
         state: present
         update_cache: yes
 
-    - name: Obtener certificado SSL de Let's Encrypt
+    - name: Check if SSL certificate already exists
+      stat:
+        path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+      register: ssl_cert
+
+    - name: Generate SSL certificate using Certbot
       command: >
         certbot --nginx -n
         --agree-tos
@@ -23,19 +69,28 @@
         --hsts
         --email {{ email }}
         -d {{ domain_name }}
+      when: not ssl_cert.stat.exists
 
-    - name: Verificar que el certificado se generó
-      stat:
-        path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
-      register: cert_status
-
-    - name: Mostrar resultado
+    - name: Display message if certificate already exists
       debug:
-        msg: "✅ Certificado generado correctamente"
-      when: cert_status.stat.exists
+        msg: "📄 Certificate already exists. Skipping Certbot."
+      when: ssl_cert.stat.exists
 
-    - name: Recargar NGINX para aplicar cambios de certificado
+    - name: Reload NGINX to apply SSL configuration
       service:
         name: nginx
         state: reloaded
+
+    - name: Ensure nginx waits for full network stack
+      copy:
+        dest: /etc/systemd/system/nginx.service.d/override.conf
+        content: |
+          [Unit]
+          After=network-online.target
+          Wants=network-online.target
+      notify: Reload systemd
+    
+    - name: Reload systemd
+      command: systemctl daemon-reexec
+
 
