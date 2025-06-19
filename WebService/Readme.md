@@ -46,13 +46,23 @@ WebService/
 
 ## 🔐 Required Secrets
 
-Configure the following **secrets** in your private GitHub repository:
+To enable the pipeline to deploy to your Azure subscription and connect via Ansible, set the following **GitHub Secrets** in your repository (`Settings` > `Secrets and variables` > `Actions`):
 
-- `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`
-- `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_DOMAIN`, `CLOUDFLARE_RECORD_NAME`
-- `SSH_PRIVATE_KEY` – used to SSH into Azure VMs
+- `ARM_CLIENT_ID`
+- `ARM_CLIENT_SECRET`
+- `ARM_SUBSCRIPTION_ID`
+- `ARM_TENANT_ID`
+- `VM_ADMIN_USER`
+- `VM_ADMIN_PASSWORD`
 
-  (agregar la parte de clonar el repo con el codigo de php)
+If you deployed the AD before, you should have the above secrets configured yet. Now you will have to configure these new secrets:
+- `SSH_PRIVATE_KEY` 
+- `CLOUDFLARE_RECORD_NAME`
+- `CLOUDFLARE_DOMAIN`
+- `CLOUDFLARE_ZONE_ID`
+- `CLOUDFLARE_API_TOKEN`
+
+> ⚠️**Note** you must generate a key pair on your machine, then upload the public key to WebService/terraform directory and must be called **id_rsa.pub**, then the private key must be in the **SSH_PRIVATE_KEY** secret.
 
 ## ⚙️ Deployment
 
