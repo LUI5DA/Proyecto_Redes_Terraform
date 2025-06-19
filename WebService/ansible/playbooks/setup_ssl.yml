@@ -81,6 +81,12 @@
         name: nginx
         state: reloaded
 
+    - name: Ensure nginx systemd override directory exists
+      file:
+        path: /etc/systemd/system/nginx.service.d
+        state: directory
+        mode: '0755'
+    
     - name: Ensure nginx waits for full network stack
       copy:
         dest: /etc/systemd/system/nginx.service.d/override.conf
@@ -92,5 +98,6 @@
     
     - name: Reload systemd
       command: systemctl daemon-reexec
+
 
 
