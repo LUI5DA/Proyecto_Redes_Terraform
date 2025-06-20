@@ -44,7 +44,7 @@
   hosts: web_all
   become: yes
   vars:
-    domain_name: prueba.proyectoredes.site
+    domain_name: proyectoredes.site
     email: gamezdavid208@gmail.com
 
   tasks:
